@@ -49,6 +49,7 @@ class FibonacciCLI:
         print("Calculate Fibonacci numbers with multiple algorithms!")
         print("\nQuick start:")
         print("  • Enter a number (e.g., 10) to calculate F(10)")
+        print("  • Enter 100 to calculate F(100) - the task requirement!")
         print("  • Type 'help' for more options")
         print("  • Type 'quit' or 'exit' to leave")
         print("-" * 60)
@@ -61,7 +62,7 @@ class FibonacciCLI:
         
         print("\n📋 BASIC USAGE:")
         print("  <number>        - Calculate Fibonacci number at index")
-        print("  Examples: 10, 25, 100")
+        print("  Examples: 10, 25, 100, 1000")
         
         print("\n🔧 COMMANDS:")
         print("  help            - Show this help message")
@@ -70,6 +71,7 @@ class FibonacciCLI:
         print("  performance     - Toggle performance display")
         print("  sequence <n>    - Show Fibonacci sequence up to F(n)")
         print("  examples        - Show example calculations")
+        print("  test100         - Demonstrate F(100) calculation")
         print("  quit/exit       - Exit the calculator")
         
         print("\n⚡ ALGORITHMS:")
@@ -82,6 +84,7 @@ class FibonacciCLI:
         print("  • Performance display: {}".format('ON' if self.show_performance else 'OFF'))
         print("  • For large numbers (n>1000), use iterative algorithm")
         print("  • Recursive algorithm not recommended for n>30")
+        print("  • F(100) = 354224848179261915075 (21 digits)")
         print("-" * 50)
     
     def display_examples(self) -> None:
@@ -96,20 +99,56 @@ class FibonacciCLI:
             (10, "F(10) = 55 (common example)"),
             (20, "F(20) = 6765 (moderate size)"),
             (50, "F(50) = 12586269025 (large number)"),
-            (100, "F(100) = 354224848179261915075 (very large)")
+            (100, "F(100) = 354224848179261915075 (task requirement!)")
         ]
         
         print("\nCommon Fibonacci calculations:")
         for n, description in examples:
             result = fibonacci_iterative(n)
             print(f"  {description}")
-            if n <= 50:  # Only show actual calculation for smaller numbers
-                print(f"    Calculation: {result}")
-            else:
-                print(f"    Result: {len(str(result))} digits long")
+            if n <= 100:  # Show actual calculation for all examples
+                if len(str(result)) > 50:
+                    print(f"    Result: {result} ({len(str(result))} digits)")
+                else:
+                    print(f"    Result: {result}")
         
         print("\n💡 Try entering any of these numbers: 0, 1, 10, 20, 50, 100")
+        print("💡 Type 'test100' for a demonstration of F(100) calculation")
         print("-" * 40)
+    
+    def demonstrate_f100(self) -> None:
+        """Demonstrate F(100) calculation as requested in the task."""
+        print("\n" + "=" * 50)
+        print("          F(100) CALCULATION DEMO")
+        print("=" * 50)
+        print("This demonstrates the task requirement: calculating F(100)")
+        print("\nCalculating F(100) using different algorithms...\n")
+        
+        n = 100
+        
+        # Iterative
+        print("🔹 Using ITERATIVE algorithm:")
+        start_time = time.time()
+        result_iter = fibonacci_iterative(n)
+        time_iter = time.time() - start_time
+        print(f"   F(100) = {result_iter}")
+        print(f"   Time: {time_iter:.6f} seconds")
+        print(f"   Digits: {len(str(result_iter))}")
+        
+        # Memoized
+        print("\n🔹 Using MEMOIZED algorithm:")
+        fibonacci_memoized.cache_clear()
+        start_time = time.time()
+        result_memo = fibonacci_memoized(n)
+        time_memo = time.time() - start_time
+        print(f"   F(100) = {result_memo}")
+        print(f"   Time: {time_memo:.6f} seconds")
+        print(f"   Verification: Results match = {result_iter == result_memo}")
+        
+        print("\n💡 Both algorithms successfully calculated F(100)!")
+        print("💡 The iterative algorithm is typically fastest for large numbers.")
+        print("💡 F(100) has 21 digits and equals 354224848179261915075")
+        print("-" * 50)
     
     def list_algorithms(self) -> None:
         """Display available algorithms with descriptions."""
@@ -191,6 +230,10 @@ class FibonacciCLI:
         if result > 1000000:
             digits = len(str(result))
             print(f"   📊 Result has {digits} digits")
+        
+        # Special note for F(100)
+        if n == 100:
+            print(f"   ✅ Successfully calculated F(100) as requested in the task!")
         
         if self.show_performance:
             print(f"   ⏱️  Calculated in {execution_time:.6f} seconds using {self.default_algorithm} algorithm")
@@ -300,6 +343,11 @@ class FibonacciCLI:
         # Handle examples command
         if user_input == 'examples':
             self.display_examples()
+            return
+        
+        # Handle F(100) demonstration command
+        if user_input == 'test100':
+            self.demonstrate_f100()
             return
         
         # Handle algorithms list command

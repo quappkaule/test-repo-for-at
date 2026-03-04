@@ -1,204 +1,230 @@
-#!/usr/bin/env python3
-"""
-Fibonacci Calculator Module
+"""Fibonacci number calculation module.
 
-This module provides efficient implementations for calculating Fibonacci numbers.
-It includes both iterative and recursive approaches with proper error handling
-and input validation.
+This module provides multiple implementations for calculating Fibonacci numbers,
+including recursive, iterative, and memoized approaches.
 
 Example:
-    >>> from fibonacci import fibonacci_iterative, fibonacci_recursive
+    >>> from fibonacci import fibonacci_iterative
     >>> fibonacci_iterative(10)
     55
-    >>> fibonacci_recursive(10)
-    55
+    
+    >>> from fibonacci import fibonacci_memoized
+    >>> fibonacci_memoized(20)
+    6765
 """
 
-from typing import Dict, Union
 from functools import lru_cache
+from typing import Union
 
 
-def fibonacci_iterative(n: int) -> int:
-    """
-    Calculate the nth Fibonacci number using an iterative approach.
-    
-    This is the recommended method for calculating Fibonacci numbers as it
-    has O(n) time complexity and O(1) space complexity.
-    
-    Args:
-        n (int): The position in the Fibonacci sequence (0-indexed)
-        
-    Returns:
-        int: The nth Fibonacci number
-        
-    Raises:
-        TypeError: If n is not an integer
-        ValueError: If n is negative
-        
-    Examples:
-        >>> fibonacci_iterative(0)
-        0
-        >>> fibonacci_iterative(1)
-        1
-        >>> fibonacci_iterative(10)
-        55
-    """
-    if not isinstance(n, int):
-        raise TypeError(f"Input must be an integer, got {type(n).__name__}")
-    
-    if n < 0:
-        raise ValueError("Input must be a non-negative integer")
-    
-    if n <= 1:
-        return n
-    
-    # Initialize first two Fibonacci numbers
-    prev, curr = 0, 1
-    
-    # Calculate Fibonacci number iteratively
-    for _ in range(2, n + 1):
-        prev, curr = curr, prev + curr
-    
-    return curr
-
-
-@lru_cache(maxsize=None)
 def fibonacci_recursive(n: int) -> int:
-    """
-    Calculate the nth Fibonacci number using a recursive approach with memoization.
+    """Calculate the nth Fibonacci number using recursion.
     
-    This implementation uses Python's lru_cache decorator for memoization,
-    which improves performance by caching previously computed values.
-    Time complexity: O(n), Space complexity: O(n)
+    This is the most intuitive implementation but has exponential time complexity.
+    Not recommended for large values of n (n > 30).
     
     Args:
-        n (int): The position in the Fibonacci sequence (0-indexed)
+        n: The position in the Fibonacci sequence (0-indexed).
         
     Returns:
-        int: The nth Fibonacci number
+        The nth Fibonacci number.
         
     Raises:
-        TypeError: If n is not an integer
-        ValueError: If n is negative
+        ValueError: If n is negative.
+        TypeError: If n is not an integer.
         
     Examples:
         >>> fibonacci_recursive(0)
         0
         >>> fibonacci_recursive(1)
         1
+        >>> fibonacci_recursive(5)
+        5
         >>> fibonacci_recursive(10)
         55
     """
-    if not isinstance(n, int):
-        raise TypeError(f"Input must be an integer, got {type(n).__name__}")
+    _validate_input(n)
     
-    if n < 0:
-        raise ValueError("Input must be a non-negative integer")
+    if n <= 1:
+        return n
+    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
+
+
+def fibonacci_iterative(n: int) -> int:
+    """Calculate the nth Fibonacci number using iteration.
+    
+    This implementation has linear time complexity and constant space complexity.
+    Recommended for most use cases.
+    
+    Args:
+        n: The position in the Fibonacci sequence (0-indexed).
+        
+    Returns:
+        The nth Fibonacci number.
+        
+    Raises:
+        ValueError: If n is negative.
+        TypeError: If n is not an integer.
+        
+    Examples:
+        >>> fibonacci_iterative(0)
+        0
+        >>> fibonacci_iterative(1)
+        1
+        >>> fibonacci_iterative(5)
+        5
+        >>> fibonacci_iterative(10)
+        55
+    """
+    _validate_input(n)
     
     if n <= 1:
         return n
     
-    return fibonacci_recursive(n - 1) + fibonacci_recursive(n - 2)
+    a, b = 0, 1
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+    
+    return b
+
+
+@lru_cache(maxsize=None)
+def fibonacci_memoized(n: int) -> int:
+    """Calculate the nth Fibonacci number using memoization.
+    
+    This implementation uses Python's built-in LRU cache for memoization,
+    providing linear time complexity for repeated calls.
+    
+    Args:
+        n: The position in the Fibonacci sequence (0-indexed).
+        
+    Returns:
+        The nth Fibonacci number.
+        
+    Raises:
+        ValueError: If n is negative.
+        TypeError: If n is not an integer.
+        
+    Examples:
+        >>> fibonacci_memoized(0)
+        0
+        >>> fibonacci_memoized(1)
+        1
+        >>> fibonacci_memoized(5)
+        5
+        >>> fibonacci_memoized(10)
+        55
+    """
+    _validate_input(n)
+    
+    if n <= 1:
+        return n
+    return fibonacci_memoized(n - 1) + fibonacci_memoized(n - 2)
 
 
 def fibonacci_sequence(n: int) -> list[int]:
-    """
-    Generate a list of the first n Fibonacci numbers.
+    """Generate the first n+1 Fibonacci numbers as a list.
     
     Args:
-        n (int): Number of Fibonacci numbers to generate
+        n: The highest position in the Fibonacci sequence to calculate.
         
     Returns:
-        list[int]: List containing the first n Fibonacci numbers
+        A list containing Fibonacci numbers from F(0) to F(n).
         
     Raises:
-        TypeError: If n is not an integer
-        ValueError: If n is negative
+        ValueError: If n is negative.
+        TypeError: If n is not an integer.
         
     Examples:
         >>> fibonacci_sequence(5)
-        [0, 1, 1, 2, 3]
+        [0, 1, 1, 2, 3, 5]
         >>> fibonacci_sequence(0)
-        []
+        [0]
+    """
+    _validate_input(n)
+    
+    if n == 0:
+        return [0]
+    
+    sequence = [0, 1]
+    for i in range(2, n + 1):
+        sequence.append(sequence[i - 1] + sequence[i - 2])
+    
+    return sequence
+
+
+def _validate_input(n: Union[int, float]) -> None:
+    """Validate input for Fibonacci functions.
+    
+    Args:
+        n: The input value to validate.
+        
+    Raises:
+        TypeError: If n is not an integer.
+        ValueError: If n is negative.
     """
     if not isinstance(n, int):
         raise TypeError(f"Input must be an integer, got {type(n).__name__}")
     
     if n < 0:
-        raise ValueError("Input must be a non-negative integer")
-    
-    if n == 0:
-        return []
-    
-    sequence = []
-    for i in range(n):
-        sequence.append(fibonacci_iterative(i))
-    
-    return sequence
+        raise ValueError("Input must be non-negative")
 
 
-def is_fibonacci_number(num: int) -> bool:
-    """
-    Check if a given number is a Fibonacci number.
+# Convenience function - defaults to the most efficient implementation
+def fibonacci(n: int) -> int:
+    """Calculate the nth Fibonacci number (default implementation).
     
-    A positive integer is a Fibonacci number if one or both of
-    (5*n^2 + 4) or (5*n^2 - 4) is a perfect square.
+    This function uses the iterative approach as it provides the best
+    balance of performance and memory usage for most use cases.
     
     Args:
-        num (int): The number to check
+        n: The position in the Fibonacci sequence (0-indexed).
         
     Returns:
-        bool: True if the number is a Fibonacci number, False otherwise
-        
-    Raises:
-        TypeError: If num is not an integer
-        ValueError: If num is negative
+        The nth Fibonacci number.
         
     Examples:
-        >>> is_fibonacci_number(13)
-        True
-        >>> is_fibonacci_number(14)
-        False
+        >>> fibonacci(10)
+        55
+        >>> fibonacci(20)
+        6765
     """
-    if not isinstance(num, int):
-        raise TypeError(f"Input must be an integer, got {type(num).__name__}")
-    
-    if num < 0:
-        raise ValueError("Input must be a non-negative integer")
-    
-    if num == 0:
-        return True
-    
-    def is_perfect_square(n: int) -> bool:
-        """Check if a number is a perfect square."""
-        root = int(n ** 0.5)
-        return root * root == n
-    
-    # A number is Fibonacci if one of 5*n^2 + 4 or 5*n^2 - 4 is a perfect square
-    return (is_perfect_square(5 * num * num + 4) or 
-            is_perfect_square(5 * num * num - 4))
+    return fibonacci_iterative(n)
 
 
 if __name__ == "__main__":
-    # Demo usage
+    # Example usage and simple performance comparison
+    import time
+    
     print("Fibonacci Calculator Demo")
-    print("=" * 30)
+    print("=" * 25)
     
     # Test basic functionality
-    test_values = [0, 1, 5, 10, 15]
+    n = 10
+    print(f"\nFibonacci number at position {n}:")
+    print(f"Recursive: {fibonacci_recursive(n)}")
+    print(f"Iterative: {fibonacci_iterative(n)}")
+    print(f"Memoized:  {fibonacci_memoized(n)}")
     
-    print("\nIterative vs Recursive comparison:")
-    for n in test_values:
-        iter_result = fibonacci_iterative(n)
-        rec_result = fibonacci_recursive(n)
-        print(f"F({n}): Iterative = {iter_result}, Recursive = {rec_result}")
+    # Show sequence
+    print(f"\nFirst {n+1} Fibonacci numbers:")
+    print(fibonacci_sequence(n))
     
-    # Generate sequence
-    print(f"\nFirst 10 Fibonacci numbers: {fibonacci_sequence(10)}")
+    # Simple performance comparison for larger number
+    n_large = 25
+    print(f"\nPerformance comparison for F({n_large}):")
     
-    # Test Fibonacci number checker
-    print("\nFibonacci number checker:")
-    test_numbers = [0, 1, 2, 3, 4, 5, 8, 13, 21, 22]
-    for num in test_numbers:
-        is_fib = is_fibonacci_number(num)
-        print(f"{num} is {'a' if is_fib else 'not a'} Fibonacci number")
+    # Time iterative
+    start = time.time()
+    result_iter = fibonacci_iterative(n_large)
+    time_iter = time.time() - start
+    print(f"Iterative: {result_iter} (Time: {time_iter:.6f}s)")
+    
+    # Time memoized
+    fibonacci_memoized.cache_clear()  # Clear cache for fair comparison
+    start = time.time()
+    result_memo = fibonacci_memoized(n_large)
+    time_memo = time.time() - start
+    print(f"Memoized:  {result_memo} (Time: {time_memo:.6f}s)")
+    
+    print("\nNote: Recursive implementation not tested for large n due to exponential time complexity.")
